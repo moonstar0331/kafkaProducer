@@ -1,5 +1,6 @@
 package com.example.kafkaproducer.config;
 
+import com.example.kafkaproducer.util.CustomSerializer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.Serdes;
@@ -34,20 +35,20 @@ public class KafkaConfig {
         return new KafkaStreamsConfiguration(myKStreamConfig);
     }
 
-//    @Bean
-//    public KafkaTemplate<String, Object> kafkaTemplate() {
-//        return new KafkaTemplate<String, Object>(producerFactory());
-//    }
-//
-//    @Bean
-//    public ProducerFactory<String, Object> producerFactory() {
-//        Map<String, Object> myConfig = new HashMap<>();
-//        myConfig.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "43.201.66.101:9092, 43.201.101.8:9092, 43.200.177.54:9092");
-//        myConfig.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-//        myConfig.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-//
-//        return new DefaultKafkaProducerFactory<>(myConfig);
-//    }
+    @Bean
+    public KafkaTemplate<String, Object> kafkaTemplate() {
+        return new KafkaTemplate<String, Object>(producerFactory());
+    }
+
+    @Bean
+    public ProducerFactory<String, Object> producerFactory() {
+        Map<String, Object> myConfig = new HashMap<>();
+        myConfig.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "54.180.152.63:9092,54.180.147.186:9092,15.164.250.96:9092");
+        myConfig.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        myConfig.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, CustomSerializer.class);
+
+        return new DefaultKafkaProducerFactory<>(myConfig);
+    }
 //
 //    @Bean
 //    public ConsumerFactory<String, Object> consumerFactory() {
