@@ -3,10 +3,7 @@ package com.example.kafkaproducer.service;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.StreamsBuilder;
-import org.apache.kafka.streams.kstream.Consumed;
-import org.apache.kafka.streams.kstream.JoinWindows;
-import org.apache.kafka.streams.kstream.KStream;
-import org.apache.kafka.streams.kstream.Printed;
+import org.apache.kafka.streams.kstream.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,23 +21,30 @@ public class StreamService {
 //        myStream.filter((key, value) -> value.contains("freeClass")).to("freeClassList");
 
         KStream<String, String> leftStream = sb.stream("leftTopic",
-                Consumed.with(STRING_SERDE, STRING_SERDE))
-                .selectKey((k, v) -> v.substring(0, v.indexOf(":")));
+                Consumed.with(STRING_SERDE, STRING_SERDE));
         // key:value --> 1:leftValue
         KStream<String, String> rightStream = sb.stream("rightTopic",
-                Consumed.with(STRING_SERDE, STRING_SERDE))
-                .selectKey((k, v) -> v.substring(0, v.indexOf(":")));
+                Consumed.with(STRING_SERDE, STRING_SERDE));
         // key:value --> 1:rightValue
 
-        leftStream.print(Printed.toSysOut());
-        rightStream.print(Printed.toSysOut());
+        ValueJoiner<String, String, String> stringJoiner = (leftValue, rightValue) -> {
+            return "[StringJoiner]" + leftValue + "-" + rightValue;
+        };
+
+        ValueJoiner<String, String, String> stringOuterJoiner = (leftValue, rightValue) -> {
+            return "[StringOuterJoiner]" + leftValue + "<" + rightValue;
+        };
 
         KStream<String, String> joinedStream = leftStream.join(rightStream,
-                (leftValue, rightValue) -> leftValue + "_" + rightValue,
-                JoinWindows.ofTimeDifferenceWithNoGrace(Duration.ofMinutes(1)));
+                stringJoiner,
+                JoinWindows.ofTimeDifferenceWithNoGrace(Duration.ofSeconds(10)));
+
+        KStream<String, String> outerJoinedStream = leftStream.outerJoin(rightStream,
+                stringOuterJoiner,
+                JoinWindows.ofTimeDifferenceWithNoGrace(Duration.ofSeconds(10)));
 
         joinedStream.print(Printed.toSysOut());
         joinedStream.to("joinedMsg");
-        // 1:leftValue_1:rightValue
+        outerJoinedStream.to("joinedMsg");
     }
 }
