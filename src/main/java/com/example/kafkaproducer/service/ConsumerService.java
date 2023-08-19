@@ -6,8 +6,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class ConsumerService {
 
-    @KafkaListener(topics = "studyKafka", groupId = "foo")
-    public void consumer(String message) {
-        System.out.println(String.format("Subscribed : %s", message));
-    }
+//    @KafkaListener(topics = "studyKafka", groupId = "foo")
+//    public void consumer(String message) {
+//        System.out.println(String.format("Subscribed : %s", message));
+//    }
 }
